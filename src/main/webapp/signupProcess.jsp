@@ -108,7 +108,7 @@
 
         pstmt = conn.prepareStatement(sql);
         pstmt.setString(1, id);
-        pstmt.setString(2, password); // 배포 시 SHA-256 등으로 해싱 권장
+        pstmt.setString(2, password);
         pstmt.setString(3, name);
         pstmt.setString(4, nickname);
         pstmt.setString(5, email);

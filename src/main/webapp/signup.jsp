@@ -36,7 +36,7 @@
 </head>
 <body>
 <div class="container mt-5">
-    <h2 class="mb-4">회원가입</h2>
+    <h2 class="mb-4">PhotoNation 입국신청서</h2>
     <form action="signupProcess.jsp" method="post" id="signupForm">
         <!-- 아이디 -->
         <div class="mb-3">
