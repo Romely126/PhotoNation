@@ -136,6 +136,17 @@
         </select>
     </div>
 </div>
+			<!-- 이메일 인증 -->
+        <div class="mb-3">
+            <label class="form-label">이메일 인증</label>
+            <div class="input-group mb-2">
+                <input type="text" class="form-control" id="emailCodeInput" placeholder="인증코드 입력" style="width: 50%;">
+                <button type="button" class="btn btn-outline-primary" onclick="verifyEmailCode()">인증 확인</button>
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="sendEmailVerificationAJAX()" style="margin-top: 5px;">인증 코드 발송</button>
+            <div id="emailStatus" class="form-text mt-1"></div>
+            <input type="hidden" id="isEmailVerified" name="isEmailVerified" value="false">
+        </div>
 
         <!-- 주소 -->
         <div class="mb-3">
@@ -260,6 +271,79 @@ $('#confirmPassword, #password').on('input', function() {
         e.preventDefault(); // 폼 제출 중단
     }
 });
+    
+    function getFullEmail() {
+        return $('#emailId').val() + '@' + ($('#emailSelect').val() || $('#emailDomain').val());
+    }
+
+    
+</script>
+
+
+<script>
+//이메일 주소 합치기
+function getFullEmail() {
+    return $('#emailId').val() + '@' + ($('#emailSelect').val() || $('#emailDomain').val());
+}
+
+// 이메일 인증 코드 발송 AJAX
+function sendEmailVerificationAJAX() {
+    const email = getFullEmail();
+    $.ajax({
+        type: "POST",
+        url: "sendVerificationEmail.jsp",  // 서버에서 이메일을 발송하는 JSP 파일
+        data: { email: email },
+        success: function(response) {
+            if (response.trim() === "success") {
+                $('#emailStatus').text("인증 코드가 이메일로 발송되었습니다.").css("color", "green");
+            } else {
+                $('#emailStatus').text("이메일 발송에 실패했습니다. 다시 시도해 주세요.").css("color", "red");
+            }
+        },
+        error: function() {
+            $('#emailStatus').text("서버 오류로 인해 이메일 발송에 실패했습니다.").css("color", "red");
+        }
+    });
+}
+
+// 이메일 인증 코드 확인 AJAX
+function verifyEmailCode() {
+    const emailCode = $('#emailCodeInput').val();
+    const email = getFullEmail();
+
+    // 입력값 체크
+    if (emailCode.trim() === "") {
+        alert("인증 코드를 입력해 주세요.");
+        return;
+    }
+
+    console.log("전송되는 데이터: ", { email: email, emailCode: emailCode });  // 데이터 확인
+
+    $.ajax({
+        type: "POST",
+        url: "verifyEmailCode.jsp",  // 서버에서 인증 코드를 확인하는 JSP 파일
+        data: { email: email, emailCode: emailCode },  // 파라미터 확인
+        success: function(response) {
+            console.log("서버 응답: ", response);  // 서버 응답을 콘솔에 출력
+            if (response.trim() === "success") {
+                alert("인증이 완료되었습니다.");
+            } else if (response.trim() === "expired") {
+                alert("인증 코드가 만료되었습니다. 다시 시도해 주세요.");
+            } else if (response.trim() === "verified") {
+                alert("이미 인증된 이메일입니다.");
+            } else if (response.trim() === "invalid") {
+                alert("잘못된 인증 코드입니다. 다시 시도해 주세요.");
+            } else if (response.trim() === "not_found") {
+                alert("해당 이메일에 대한 인증 정보가 없습니다.");
+            } else {
+                alert("알 수 없는 오류가 발생했습니다.");
+            }
+        },
+        error: function() {
+            alert("서버 오류로 인증을 확인할 수 없습니다.");
+        }
+    });
+}
 
 </script>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>

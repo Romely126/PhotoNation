@@ -57,7 +57,7 @@
 
         <!-- 회원가입/비밀번호 찾기 링크 -->
         <div class="text-center mt-3">
-            <a href="signup.jsp">회원가입</a> | <a href="forgotPassword.jsp">비밀번호 찾기</a>
+            <a href="signup.jsp">회원가입</a> | <a href="forgotPassword.jsp">비밀번호 변경</a>
         </div>
     </form>
 </div>
