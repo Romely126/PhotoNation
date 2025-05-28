@@ -7,6 +7,6 @@ public class Gmail extends Authenticator {
 
 	@Override
 	protected PasswordAuthentication getPasswordAuthentication() {
-		return new PasswordAuthentication("google_ID", "password");  //관리자의 아이디와 비밀번호
+		return new PasswordAuthentication("google_ID", "password");  
 	}
 }

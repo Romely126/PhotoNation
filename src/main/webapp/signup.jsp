@@ -37,7 +37,7 @@
 <body>
 <div class="container mt-5">
     <h2 class="mb-4">PhotoNation 입국신청서</h2>
-    <form action="signupProcess.jsp" method="post" id="signupForm">
+    <form action="signupProcess.jsp" method="post" enctype="multipart/form-data" id="signupForm">
         <!-- 아이디 -->
         <div class="mb-3">
             <label for="id" class="form-label">아이디</label>
@@ -156,7 +156,18 @@
                 <button type="button" class="btn btn-outline-secondary" onclick="execDaumPostcode()" style="height: 38px;">주소 찾기</button>
             </div>
             <input type="text" class="form-control mb-2" id="address" name="address" placeholder="기본주소" readonly>
-            <input type="text" class="form-control" id="detailAddress" name="detailAddress" placeholder="상세주소">
+            <input type="text" class="form-control" id="detailAddress" name="detailAddress" placeholder="상세주소" required>
+        </div>
+
+        <!-- 프로필 사진 업로드 -->
+        <div class="mb-3">
+            <label for="profileImg" class="form-label">프로필 사진</label>
+            <div class="text-center mb-2">
+                <img id="profilePreview" src="img/default_profile.jpg" alt="프로필 미리보기" 
+                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
+            </div>
+            <input type="file" class="form-control" id="profileImg" name="profileImg" 
+                   accept="image/*" onchange="previewImage(this)">
         </div>
 
         <!-- 회원가입 버튼 영역 -->
@@ -361,6 +372,19 @@ function execDaumPostcode() {
 }
 
 
+</script>
+
+<script>
+    // 이미지 미리보기 함수
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#profilePreview').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 </script>
 </body>
 </html>

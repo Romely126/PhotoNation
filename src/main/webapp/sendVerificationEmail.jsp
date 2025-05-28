@@ -29,8 +29,8 @@
         // 이메일 발송
         String host = "smtp.gmail.com";
         String from = "vega0101938@gmail.com";  // 발송자 이메일
-        String subject = "PhotoNation 입국을 환영합니다!";
-        String body = "회원가입까지 얼마 남지 않았습니다!\n\n이메일 인증 코드 : " + verificationCode + "\n\n위 이메일 인증 코드를 입력해주세요";
+        String subject = "PhotoNation 이메일 인증 코드 발송";
+        String body = "\n\n이메일 인증 코드 : " + verificationCode + "\n\n위 이메일 인증 코드를 입력해주세요\n\n\nPhotoNation | 사진으로 소통하는 특별한 공간";
 
         // properties 설정
         Properties properties = System.getProperties();

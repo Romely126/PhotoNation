@@ -1,5 +1,20 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page import="java.sql.Connection, java.sql.DriverManager, java.sql.PreparedStatement, java.sql.SQLException" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" session="false" isELIgnored="false" %>
+
+<%@ page import="java.io.*,
+                 java.sql.*,
+                 java.util.*,
+                 java.util.Base64,
+                 java.util.Collection,
+                 java.util.Iterator,
+                 java.nio.file.*" %>
+<%@ page import="jakarta.servlet.http.Part" %>
+<%@ page import="org.apache.commons.io.IOUtils" %>
+<%@ page import="java.security.MessageDigest" %>
+
+
+
 <%
     request.setCharacterEncoding("UTF-8");
     response.setContentType("text/html; charset=UTF-8");
@@ -8,6 +23,22 @@
     String id = request.getParameter("id");
     String password = request.getParameter("password");
     String confirmPassword = request.getParameter("confirmPassword");
+    String hashedPassword = null;
+    try {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(password.getBytes("UTF-8"));
+        byte[] digest = md.digest();
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        hashedPassword = sb.toString();
+    } catch (Exception e) {
+        e.printStackTrace();
+        out.println("<script>alert('비밀번호 암호화 오류'); history.back();</script>");
+        return;
+    }
     String nickname = request.getParameter("nickname");
     String name = request.getParameter("name");
     String gender = request.getParameter("gender");
@@ -27,6 +58,23 @@
     String detailAddress = request.getParameter("detailAddress");
     String fullAddress = address + " " + detailAddress;
 
+    Part filePart = request.getPart("profileImg");  // Jakarta Servlet API 사용
+    InputStream inputStream = null;
+    String profileImgType = null;
+    byte[] profileImgData = null;
+    
+    if (filePart != null && filePart.getSize() > 0) {
+        profileImgType = filePart.getContentType(); // MIME type (e.g., image/jpeg)
+        inputStream = filePart.getInputStream();
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] tmp = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(tmp)) != -1) {
+            buffer.write(tmp, 0, bytesRead);
+        }
+        profileImgData = buffer.toByteArray();
+    }
+    
     // === 서버 유효성 검사 시작 ===
    	if (id == null || id.trim().isEmpty() || !id.matches("^[a-zA-Z0-9]{5,}$")) {
     	out.println("<script>alert('아이디는 5자 이상, 영문 및 숫자만 입력 가능하며, 공백을 포함할 수 없습니다.'); history.back();</script>");
@@ -91,6 +139,8 @@
         return;
     }
 
+    
+    
     // === DB 연결 및 INSERT ===
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -103,12 +153,12 @@
         Class.forName("com.mysql.cj.jdbc.Driver");
         conn = DriverManager.getConnection(dbURL, dbUser, dbPass);
 
-        String sql = "INSERT INTO user_info (id, password, name, nickname, email, sex, birthday, phoneNum, postNum, address) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO user_info (id, password, name, nickname, email, sex, birthday, phoneNum, postNum, address, profileImg, profileImgType) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         pstmt = conn.prepareStatement(sql);
         pstmt.setString(1, id);
-        pstmt.setString(2, password);
+        pstmt.setString(2, hashedPassword);
         pstmt.setString(3, name);
         pstmt.setString(4, nickname);
         pstmt.setString(5, email);
@@ -117,7 +167,14 @@
         pstmt.setString(8, phoneNum);
         pstmt.setString(9, post);
         pstmt.setString(10, fullAddress);
-
+        if (profileImgData != null) {
+            pstmt.setBytes(11, profileImgData);
+            pstmt.setString(12, profileImgType);
+        } else {
+            pstmt.setNull(11, java.sql.Types.BLOB);
+            pstmt.setNull(12, java.sql.Types.VARCHAR);
+        }
+        
         int result = pstmt.executeUpdate();
 
         if (result > 0) {

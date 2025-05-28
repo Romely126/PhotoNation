@@ -31,13 +31,52 @@
         .form-control {
             margin-bottom: 10px;
         }
+        
+        .error-message {
+            color: #dc3545;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .link-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .link-section a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .link-section a:hover {
+            text-decoration: underline;
+        }
+        
+        .divider {
+            color: #6c757d;
+            margin: 0 5px;
+        }
     </style>
 </head>
 <body>
 <div class="container mt-5">
     <h2 class="mb-4 text-center">Welcome to PhotoNation!</h2>
     <h2 class="mb-4 text-center">입국을 환영합니다.</h2>
-    <form id="loginForm">
+    
+    <% if(request.getParameter("error") != null) { %>
+        <div class="error-message">
+            <% if(request.getParameter("error").equals("1")) { %>
+                아이디 또는 비밀번호가 일치하지 않습니다.
+            <% } else { %>
+                로그인 처리 중 오류가 발생했습니다.
+            <% } %>
+        </div>
+    <% } %>
+    
+    <form action="loginProcess.jsp" method="post" id="loginForm">
         <!-- 아이디 -->
         <div class="mb-3">
             <label for="id" class="form-label">아이디</label>
@@ -55,29 +94,27 @@
             <button type="submit" class="btn btn-primary w-100">로그인</button>
         </div>
 
-        <!-- 회원가입/비밀번호 찾기 링크 -->
-        <div class="text-center mt-3">
-            <a href="signup.jsp">회원가입</a> | <a href="forgotPassword.jsp">비밀번호 변경</a>
+        <!-- 링크 섹션 -->
+        <div class="link-section">
+            <a href="signup.jsp">회원가입</a>
+            <span class="divider">|</span>
+            <a href="findId.jsp">아이디 찾기</a>
+            <span class="divider">|</span>
+            <a href="forgetPassword.jsp">비밀번호 변경</a>
         </div>
     </form>
 </div>
 
 <script>
-    // 간단한 클라이언트 측 검증 (아이디/비밀번호가 미리 정해진 값일 경우에만 통과)
+    // 폼 제출 전 기본적인 유효성 검사
     $('#loginForm').on('submit', function(e) {
-        e.preventDefault(); // 기본 제출 막기
-
-        const id = $('#id').val();
-        const pw = $('#password').val();
-
-        // 예시: 정해진 테스트 계정 (실제 서버 검증은 loginProcess.jsp에서 수행 예정)
-        const validId = "testuser";
-        const validPw = "1234";
-
-        if (id === validId && pw === validPw) {
-            this.submit(); // 조건 만족 시 폼 제출
-        } else {
-            alert("아이디가 존재하지 않거나 비밀번호가 틀립니다.");
+        const id = $('#id').val().trim();
+        const pw = $('#password').val().trim();
+        
+        if(id === '' || pw === '') {
+            e.preventDefault();
+            alert('아이디와 비밀번호를 모두 입력해주세요.');
+            return false;
         }
     });
 </script>
