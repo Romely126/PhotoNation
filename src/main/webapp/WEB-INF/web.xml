@@ -21,7 +21,6 @@
         <file-size-threshold>1048576</file-size-threshold> <!-- 1MB -->
     </multipart-config>
 </servlet>
-
     
     <!-- 기본 페이지 설정 -->
     <welcome-file-list>

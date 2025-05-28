@@ -496,7 +496,7 @@
             return false;
         }
 
-        // 인기글 로드 함수
+
         // 인기글 로드 함수 - 캐시 방지 및 오류 처리 강화
 function loadPopularPosts() {
     console.log('loadPopularPosts 호출 - ' + new Date().toLocaleTimeString());
@@ -624,7 +624,7 @@ function addRefreshButton() {
                 }
             });
             
-            // 네트워크 상태 변경 감지 (지원하는 브라우저에서)
+            // 네트워크 상태 변경 감지
             if ('onLine' in navigator) {
                 $(window).on('online', function() {
                     console.log('네트워크 연결 복구 - 인기글 업데이트');
@@ -633,7 +633,7 @@ function addRefreshButton() {
             }
         });
         
-        // 통합된 클릭 이벤트 핸들러 - 하나로 통합
+        // 이벤트 핸들러 통합
         $(document).on('click', '.post-item, .popular-post-item', function(e) {
     e.preventDefault();
     e.stopPropagation();
