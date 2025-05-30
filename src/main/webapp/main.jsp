@@ -271,6 +271,37 @@
 .popular-post-item:hover .text-primary {
     color: #0056b3 !important;
 }
+
+.popup-form {
+    width: 280px;
+}
+.popup-form input, .popup-form textarea {
+    display: block;
+    margin-bottom: 8px;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.popup-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px;
+}
+.image-preview {
+    width: 100%;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin: 8px 0;
+    display: none;
+}
     </style>
 </head>
 <body>
@@ -387,9 +418,336 @@
     <script>
         // OpenStreetMap 초기화
         var map = L.map('map').setView([37.5665, 126.9780], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    		attribution: '© OpenStreetMap contributors'
+		}).addTo(map);
+		
+		map.on('click', function(e) {
+		    <% if(userId != null) { %>
+		        var lat = e.latlng.lat;
+		        var lng = e.latlng.lng;
+		        
+		        // 좌표값 검증
+		        console.log('클릭된 좌표:', lat, lng);
+		        
+		        if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+		            console.error('유효하지 않은 좌표:', lat, lng);
+		            alert('좌표 정보를 가져올 수 없습니다.');
+		            return;
+		        }
+		        
+		        // 고유한 ID를 생성하여 폼을 식별
+		        var formId = 'spotForm_' + Date.now();
+		        
+		        var popupContent = `
+		            <div class="popup-form">
+		                <div id="${'${formId}'}">
+		                    <input type="text" id="${'${formId}'}_title" placeholder="제목" required>
+		                    <textarea id="${'${formId}'}_description" placeholder="설명" rows="3" required></textarea>
+		                    <div style="display: flex; gap: 5px; margin-bottom: 8px;">
+		                        <input type="text" value="위도: ${'${lat.toFixed(6)}'}" readonly style="flex: 1; background-color: #f8f9fa; color: #666; font-size: 12px;">
+		                        <input type="text" value="경도: ${'${lng.toFixed(6)}'}" readonly style="flex: 1; background-color: #f8f9fa; color: #666; font-size: 12px;">
+		                    </div>
+		                    <input type="file" id="${'${formId}'}_photo" accept="image/*" required onchange="previewImage(this, '${'${formId}'}')">
+		                    <img id="${'${formId}'}_preview" class="image-preview" style="display:none;">
+		                    <button type="button" onclick="uploadSpot('${'${formId}'}', ${'${lat}'}, ${'${lng}'})">저장</button>
+		                    <button type="button" onclick="map.closePopup()" style="background-color: #6c757d; margin-top: 5px;">취소</button>
+		                </div>
+		            </div>
+		        `;
+		        
+		        // 기존 팝업 닫기
+		        map.closePopup();
+		        
+		        // 새 마커와 팝업 생성
+		        var tempMarker = L.marker([lat, lng]).addTo(map);
+		        tempMarker.bindPopup(popupContent, {
+		            closeOnClick: false,
+		            autoClose: false,
+		            maxWidth: 300
+		        }).openPopup();
+		        
+		        // 팝업이 닫힐 때 임시 마커 제거
+		        tempMarker.on('popupclose', function() {
+		            map.removeLayer(tempMarker);
+		        });
+		        
+		    <% } else { %>
+		        alert('로그인 후 이용해주세요.');
+		    <% } %>
+		});
+
+		
+		function previewImage(input, formId) {
+		    const preview = document.getElementById(formId + '_preview');
+		    
+		    if (input.files && input.files[0]) {
+		        const file = input.files[0];
+		        
+		        // 파일 타입 검사
+		        if (!file.type.startsWith('image/')) {
+		            alert('이미지 파일만 선택 가능합니다.');
+		            input.value = '';
+		            preview.style.display = 'none';
+		            return;
+		        }
+		        
+		        // 파일 크기 검사 (10MB)
+		        if (file.size > 10 * 1024 * 1024) {
+		            alert('파일 크기는 10MB 이하여야 합니다.');
+		            input.value = '';
+		            preview.style.display = 'none';
+		            return;
+		        }
+		        
+		        const reader = new FileReader();
+		        reader.onload = function(e) {
+		            preview.src = e.target.result;
+		            preview.style.display = 'block';
+		        };
+		        reader.readAsDataURL(file);
+		    } else {
+		        preview.style.display = 'none';
+		    }
+		}
+		
+		// 출사지 업로드 함수 추가
+		function uploadSpot(formId, lat, lng) {
+    console.log('uploadSpot 함수 시작 - formId:', formId, 'lat:', lat, 'lng:', lng);
+    console.log('찾고 있는 요소 ID들:', formId + '_title', formId + '_description', formId + '_photo');
+    // DOM 요소 가져오기
+    const titleInput = document.getElementById(formId + '_title');
+    const descriptionInput = document.getElementById(formId + '_description');
+    const photoInput = document.getElementById(formId + '_photo');
+    const submitBtn = document.querySelector('#' + formId + ' button');
+    
+    
+    // 요소 존재 확인
+    if (!titleInput || !descriptionInput || !photoInput || !submitBtn) {
+        console.error('필요한 DOM 요소를 찾을 수 없습니다');
+        alert('폼 요소를 찾을 수 없습니다.');
+        return;
+    }
+    
+    // 입력값 가져오기
+    const title = titleInput.value.trim();
+    const description = descriptionInput.value.trim();
+    const photoFile = photoInput.files[0];
+    
+    console.log('입력값 확인:', {title, description, photoFile: !!photoFile});
+    
+    // 유효성 검사
+    if (!title) {
+        alert('제목을 입력해주세요.');
+        titleInput.focus();
+        return;
+    }
+    
+    if (!description) {
+        alert('설명을 입력해주세요.');
+        descriptionInput.focus();
+        return;
+    }
+    
+    if (!photoFile) {
+        alert('사진을 선택해주세요.');
+        photoInput.focus();
+        return;
+    }
+    
+    // 파일 크기 및 타입 검사
+    if (photoFile.size > 10 * 1024 * 1024) { // 10MB 제한
+        alert('파일 크기는 10MB 이하여야 합니다.');
+        return;
+    }
+    
+    if (!photoFile.type.startsWith('image/')) {
+        alert('이미지 파일만 업로드 가능합니다.');
+        return;
+    }
+    
+    // 버튼 비활성화
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = '저장 중...';
+    
+    // FormData 생성
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('latitude', lat.toString());
+    formData.append('longitude', lng.toString());
+    formData.append('photo', photoFile);
+    
+    console.log('AJAX 요청 시작');
+    
+    // AJAX 요청
+    $.ajax({
+        url: 'uploadSpot.jsp',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        timeout: 30000,
+        success: function(response) {
+            console.log('서버 응답 원본:', JSON.stringify(response));
+            
+            // 응답 정리 (HTML 태그 제거 및 공백 정리)
+            const cleanResponse = response.replace(/<[^>]*>/g, '').trim();
+            console.log('정리된 응답:', cleanResponse);
+            
+            if (cleanResponse === 'success') {
+                alert('출사 장소가 등록되었습니다!');
+                map.closePopup();
+                loadSpots(); // 등록된 장소들 다시 로드
+            } else if (cleanResponse === 'unauthorized') {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'login.jsp';
+            } else if (cleanResponse === 'missing_data') {
+                alert('필수 정보가 누락되었습니다.');
+            } else if (cleanResponse === 'no_photo') {
+                alert('사진을 선택해주세요.');
+            } else if (cleanResponse.startsWith('error:')) {
+                const errorMsg = cleanResponse.substring(6);
+                console.error('서버 오류:', errorMsg);
+                alert('오류가 발생했습니다: ' + errorMsg);
+            } else {
+                console.error('예상치 못한 응답:', cleanResponse);
+                alert('알 수 없는 응답입니다: ' + cleanResponse);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX 오류 상세:', {
+                status: status,
+                error: error,
+                responseText: xhr.responseText,
+                readyState: xhr.readyState,
+                statusText: xhr.statusText
+            });
+            
+            let errorMessage = '네트워크 오류가 발생했습니다.';
+            
+            if (status === 'timeout') {
+                errorMessage = '요청 시간이 초과되었습니다. 다시 시도해주세요.';
+            } else if (xhr.status === 404) {
+                errorMessage = 'uploadSpot.jsp 파일을 찾을 수 없습니다.';
+            } else if (xhr.status === 500) {
+                errorMessage = '서버 내부 오류가 발생했습니다.';
+            } else if (xhr.status === 0) {
+                errorMessage = '네트워크 연결을 확인해주세요.';
+            }
+            
+            alert(errorMessage);
+        },
+        complete: function() {
+            // 버튼 다시 활성화
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            console.log('AJAX 요청 완료');
+        }
+    });
+}
+
+
+		// 등록된 출사지 로드 함수 추가
+		function loadSpots() {
+    console.log('loadSpots 함수 시작');
+    
+    $.ajax({
+        url: 'getSpots.jsp',
+        method: 'GET',
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+            console.log('출사지 데이터 로드 성공:', data);
+            
+            // 기존 출사지 마커들 제거
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker && layer.options.isSpot) {
+                    map.removeLayer(layer);
+                }
+            });
+            
+            // 데이터가 배열인지 확인
+            if (Array.isArray(data)) {
+                // 새 마커들 추가
+                data.forEach(function(spot) {
+                    if (spot.latitude && spot.longitude) {
+                        // 팝업 내용을 문자열 연결로 수정
+                        var popupContent = '<div style="min-width: 200px;">' +
+                                         '<h6>' + (spot.title || '제목 없음') + '</h6>' +
+                                         '<p>' + (spot.description || '설명 없음') + '</p>' +
+                                         '<img src="getSpotImage.jsp?id=' + spot.id + '" ' +
+                                         'style="width:100%;max-width:200px;height:auto;border-radius:4px;" ' +
+                                         'onerror="this.style.display=\'none\'">';
+                        
+                        <% if(userId != null) { %>
+                        popupContent += '<br><button onclick="deleteSpot(' + spot.id + ')" ' +
+                                       'class="btn btn-sm btn-danger mt-2">삭제</button>';
+                        <% } %>
+                        
+                        popupContent += '</div>';
+                        
+                        var marker = L.marker([spot.latitude, spot.longitude], {isSpot: true})
+                            .addTo(map)
+                            .bindPopup(popupContent);
+                    }
+                });
+                
+                console.log(data.length + '개의 출사지 마커가 추가되었습니다.');
+            } else {
+                console.error('응답 데이터가 배열이 아닙니다:', data);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('출사지 로드 실패:', {
+                status: status,
+                error: error,
+                responseText: xhr.responseText
+            });
+        }
+    });
+}
+		// 출사지 삭제 함수 추가
+		function deleteSpot(spotId) {
+    console.log('deleteSpot 함수 호출, spotId:', spotId);
+    
+    if(!confirm('이 출사지를 삭제하시겠습니까?')) {
+        return;
+    }
+    
+    $.ajax({
+        url: 'deleteSpot.jsp',
+        method: 'POST',
+        data: {spotId: spotId},
+        timeout: 10000,
+        success: function(response) {
+            const cleanResponse = response.trim();
+            if (cleanResponse === 'success') {
+                alert('삭제되었습니다.');
+                loadSpots();
+            } else {
+                alert('삭제 실패: ' + cleanResponse);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('삭제 실패:', error);
+            alert('삭제 중 오류가 발생했습니다.');
+        }
+    });
+}
+
+		// showMap 함수 
+		function showMap() {
+		    console.log('showMap 호출');
+		    $('#postList').hide();
+		    $('#map').show();
+		    map.invalidateSize();
+		    loadSpots(); // 출사지 로드
+		    
+		    $('#navbarNav .nav-link').removeClass('active');
+		    $('#navbarNav .nav-link[data-board-type="map"]').addClass('active');
+		}
 
         let currentBoardType = 'all';
         let currentPage = 1;
@@ -409,18 +767,6 @@
             // 현재 활성화된 탭 표시
             $('#navbarNav .nav-link').removeClass('active');
             $(`#navbarNav .nav-link[data-board-type="${type}"]`).addClass('active');
-        }
-
-        // 지도 표시 함수
-        function showMap() {
-            console.log('showMap 호출');
-            $('#postList').hide();
-            $('#map').show();
-            map.invalidateSize(); // 지도 크기 재조정
-            
-            // 현재 활성화된 탭 표시
-            $('#navbarNav .nav-link').removeClass('active');
-            $('#navbarNav .nav-link[data-board-type="map"]').addClass('active');
         }
 
         // 게시글 목록 로드 함수

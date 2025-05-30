@@ -21,6 +21,20 @@
         <file-size-threshold>1048576</file-size-threshold> <!-- 1MB -->
     </multipart-config>
 </servlet>
+<servlet>
+    <servlet-name>uploadSpot</servlet-name>
+    <jsp-file>/uploadSpot.jsp</jsp-file>
+    <multipart-config>
+        <max-file-size>10485760</max-file-size> <!-- 10MB -->
+        <max-request-size>52428800</max-request-size> <!-- 50MB -->
+        <file-size-threshold>1048576</file-size-threshold> <!-- 1MB -->
+    </multipart-config>
+</servlet>
+<servlet-mapping>
+    <servlet-name>uploadSpot</servlet-name>
+    <url-pattern>/uploadSpot.jsp</url-pattern>
+</servlet-mapping>
+
     
     <!-- 기본 페이지 설정 -->
     <welcome-file-list>
