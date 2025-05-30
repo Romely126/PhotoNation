@@ -650,6 +650,7 @@
 
 
 		// 등록된 출사지 로드 함수 추가
+		// 등록된 출사지 로드 함수 - 좋아요 기능 추가
 		function loadSpots() {
     console.log('loadSpots 함수 시작');
     
@@ -673,24 +674,106 @@
                 // 새 마커들 추가
                 data.forEach(function(spot) {
                     if (spot.latitude && spot.longitude) {
-                        // 팝업 내용을 문자열 연결로 수정
-                        var popupContent = '<div style="min-width: 200px;">' +
-                                         '<h6>' + (spot.title || '제목 없음') + '</h6>' +
-                                         '<p>' + (spot.description || '설명 없음') + '</p>' +
-                                         '<img src="getSpotImage.jsp?id=' + spot.id + '" ' +
-                                         'style="width:100%;max-width:200px;height:auto;border-radius:4px;" ' +
-                                         'onerror="this.style.display=\'none\'">';
+                        // 순위 아이콘 생성
+                        var rankIcon = null;
+                        var rankColor = '#6c757d'; // 기본 회색
+                        
+                        if (spot.ranking <= 10 && spot.like_count > 0) {
+                            if (spot.ranking === 1) {
+                                rankColor = '#ffd700'; // 금색
+                            } else if (spot.ranking === 2) {
+                                rankColor = '#c0c0c0'; // 은색
+                            } else if (spot.ranking === 3) {
+                                rankColor = '#cd7f32'; // 동색
+                            } else {
+                                rankColor = '#007bff'; // 파란색
+                            }
+                            
+                            rankIcon = L.divIcon({
+                                html: '<div style="background-color:' + rankColor + ';color:white;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3);">' + spot.ranking + '</div>',
+                                iconSize: [30, 30],
+                                iconAnchor: [15, 15],
+                                className: 'custom-rank-icon'
+                            });
+                        }
+                        
+                        // 팝업 내용 생성
+                        var popupContent = '<div style="min-width: 250px;">';
+                        
+                        // 순위 표시 (상위 10위까지)
+                        if (spot.ranking <= 10 && spot.like_count > 0) {
+                            var rankBadge = '';
+                            if (spot.ranking === 1) {
+                                rankBadge = '<span style="background:#ffd700;color:#333;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:bold;">🏆 1위</span>';
+                            } else if (spot.ranking === 2) {
+                                rankBadge = '<span style="background:#c0c0c0;color:#333;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:bold;">🥈 2위</span>';
+                            } else if (spot.ranking === 3) {
+                                rankBadge = '<span style="background:#cd7f32;color:white;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:bold;">🥉 3위</span>';
+                            } else {
+                                rankBadge = '<span style="background:#007bff;color:white;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:bold;">' + spot.ranking + '위</span>';
+                            }
+                            popupContent += '<div style="margin-bottom:8px;">' + rankBadge + '</div>';
+                        }
+                        
+                        popupContent += '<h6>' + (spot.title || '제목 없음') + '</h6>' +
+                                       '<p style="margin-bottom:10px;">' + (spot.description || '설명 없음') + '</p>' +
+                                       '<img src="getSpotImage.jsp?id=' + spot.id + '" ' +
+                                       'style="width:100%;max-width:200px;height:auto;border-radius:4px;margin-bottom:10px;" ' +
+                                       'onerror="this.style.display=\'none\'">';
+                        
+                        // 좋아요 버튼 섹션
+                        popupContent += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">';
                         
                         <% if(userId != null) { %>
-                        popupContent += '<br><button onclick="deleteSpot(' + spot.id + ')" ' +
-                                       'class="btn btn-sm btn-danger mt-2">삭제</button>';
+                        // 로그인된 경우 좋아요 버튼 표시
+                        var heartIcon = spot.user_liked ? '❤️' : '🤍';
+                        var heartColor = spot.user_liked ? '#dc3545' : '#6c757d';
+                        
+                        popupContent += '<button onclick="toggleSpotLike(' + spot.id + ', this)" ' +
+                                       'class="btn btn-sm" ' +
+                                       'style="background:none;border:1px solid ' + heartColor + ';color:' + heartColor + ';display:flex;align-items:center;gap:4px;" ' +
+                                       'data-liked="' + spot.user_liked + '">' +
+                                       '<span class="heart-icon">' + heartIcon + '</span>' +
+                                       '<span class="like-count">' + (spot.like_count || 0) + '</span>' +
+                                       '</button>';
+                        <% } else { %>
+                        // 로그인되지 않은 경우 좋아요 수만 표시
+                        popupContent += '<span style="display:flex;align-items:center;gap:4px;color:#6c757d;">' +
+                                       '❤️ <span>' + (spot.like_count || 0) + '</span>' +
+                                       '</span>';
                         <% } %>
                         
                         popupContent += '</div>';
                         
-                        var marker = L.marker([spot.latitude, spot.longitude], {isSpot: true})
-                            .addTo(map)
-                            .bindPopup(popupContent);
+                        <% if(userId != null) { %>
+                        // 삭제 버튼 (자신이 등록한 출사지만)
+                        if (spot.user_id === '<%= userId %>') {
+                            popupContent += '<button onclick="deleteSpot(' + spot.id + ')" ' +
+                                           'class="btn btn-sm btn-danger" style="width:100%;">삭제</button>';
+                        }
+                        <% } %>
+                        
+                        popupContent += '</div>';
+                        
+                        // 마커 생성
+                        var marker;
+                        if (rankIcon) {
+                            marker = L.marker([spot.latitude, spot.longitude], {
+                                icon: rankIcon,
+                                isSpot: true,
+                                spotData: spot
+                            });
+                        } else {
+                            marker = L.marker([spot.latitude, spot.longitude], {
+                                isSpot: true,
+                                spotData: spot
+                            });
+                        }
+                        
+                        marker.addTo(map).bindPopup(popupContent, {
+                            maxWidth: 300,
+                            closeOnClick: false
+                        });
                     }
                 });
                 
@@ -997,6 +1080,136 @@ function addRefreshButton() {
     
     return false;
 });
+     // 출사지 좋아요 토글 함수
+        function toggleSpotLike(spotId, buttonElement) {
+            console.log('toggleSpotLike 함수 호출, spotId:', spotId);
+            
+            if (!spotId) {
+                console.error('spotId가 없습니다');
+                alert('출사지 정보를 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 버튼 비활성화 (중복 클릭 방지)
+            if (buttonElement) {
+                buttonElement.disabled = true;
+            }
+            
+            $.ajax({
+                url: 'toggleSpotLike.jsp',
+                method: 'POST',
+                data: {
+                    spotId: spotId
+                },
+                timeout: 10000,
+                success: function(response) {
+                    console.log('좋아요 토글 응답:', response);
+                    
+                    try {
+                        // JSON 응답 파싱 시도
+                        let result;
+                        if (typeof response === 'string') {
+                            // HTML 태그 제거 및 공백 정리
+                            const cleanResponse = response.replace(/<[^>]*>/g, '').trim();
+                            
+                            if (cleanResponse.startsWith('{')) {
+                                result = JSON.parse(cleanResponse);
+                            } else {
+                                throw new Error('JSON이 아닌 응답: ' + cleanResponse);
+                            }
+                        } else {
+                            result = response;
+                        }
+                        
+                        if (result.success) {
+                            // 성공시 UI 업데이트
+                            if (buttonElement) {
+                                const heartIcon = buttonElement.querySelector('.heart-icon');
+                                const likeCount = buttonElement.querySelector('.like-count');
+                                
+                                if (heartIcon && likeCount) {
+                                    // 좋아요 상태에 따라 아이콘과 색상 변경
+                                    if (result.liked) {
+                                        heartIcon.textContent = '❤️';
+                                        buttonElement.style.color = '#dc3545';
+                                        buttonElement.style.borderColor = '#dc3545';
+                                        buttonElement.setAttribute('data-liked', 'true');
+                                    } else {
+                                        heartIcon.textContent = '🤍';
+                                        buttonElement.style.color = '#6c757d';
+                                        buttonElement.style.borderColor = '#6c757d';
+                                        buttonElement.setAttribute('data-liked', 'false');
+                                    }
+                                    
+                                    // 좋아요 수 업데이트
+                                    likeCount.textContent = result.likeCount || 0;
+                                    
+                                    // 간단한 애니메이션 효과
+                                    buttonElement.style.transform = 'scale(1.1)';
+                                    setTimeout(() => {
+                                        buttonElement.style.transform = 'scale(1)';
+                                    }, 150);
+                                }
+                            }
+                            
+                            // 지도의 모든 마커 업데이트 (순위 변경 반영)
+                            setTimeout(() => {
+                                loadSpots();
+                            }, 500);
+                            
+                        } else {
+                            console.error('좋아요 처리 실패:', result);
+                            alert('좋아요 처리 중 오류가 발생했습니다.');
+                        }
+                        
+                    } catch (error) {
+                        console.error('응답 파싱 오류:', error);
+                        
+                        // 문자열 응답 처리
+                        const cleanResponse = (typeof response === 'string') ? 
+                            response.replace(/<[^>]*>/g, '').trim() : String(response);
+                        
+                        if (cleanResponse === 'unauthorized') {
+                            alert('로그인이 필요합니다.');
+                            window.location.href = 'login.jsp';
+                        } else if (cleanResponse.startsWith('error:')) {
+                            const errorMsg = cleanResponse.substring(6);
+                            alert('오류: ' + errorMsg);
+                        } else {
+                            console.error('예상치 못한 응답:', cleanResponse);
+                            alert('알 수 없는 오류가 발생했습니다.');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('좋아요 토글 AJAX 오류:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText
+                    });
+                    
+                    let errorMessage = '네트워크 오류가 발생했습니다.';
+                    
+                    if (status === 'timeout') {
+                        errorMessage = '요청 시간이 초과되었습니다.';
+                    } else if (xhr.status === 404) {
+                        errorMessage = 'toggleSpotLike.jsp 파일을 찾을 수 없습니다.';
+                    } else if (xhr.status === 500) {
+                        errorMessage = '서버 내부 오류가 발생했습니다.';
+                    } else if (xhr.status === 0) {
+                        errorMessage = '네트워크 연결을 확인해주세요.';
+                    }
+                    
+                    alert(errorMessage);
+                },
+                complete: function() {
+                    // 버튼 다시 활성화
+                    if (buttonElement) {
+                        buttonElement.disabled = false;
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
