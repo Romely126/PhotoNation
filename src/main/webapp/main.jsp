@@ -9,6 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <title>PhotoNation - 메인</title>
+    <link rel="icon" href="img/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -54,7 +55,7 @@
             padding: 20px;
         }
         #map {
-            height: 600px;
+            height: 900px;
             border-radius: 10px;
             display: none;
         }
@@ -302,6 +303,117 @@
     margin: 8px 0;
     display: none;
 }
+
+/* 지도 검색 박스 스타일 */
+.map-search-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 8px 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 300px;
+    transition: all 0.3s ease;
+}
+
+.map-search-container:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.map-search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 240px;
+    padding: 8px 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.map-search-input::placeholder {
+    color: #666;
+}
+
+.map-search-btn {
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.map-search-btn:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+.map-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 5px;
+    display: none;
+}
+
+.map-search-result-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.map-search-result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.map-search-result-item:last-child {
+    border-bottom: none;
+}
+
+.map-search-result-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.map-search-result-address {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+}
+
+/* 검색 로딩 상태 */
+.map-search-loading {
+    display: none;
+    text-align: center;
+    padding: 15px;
+    color: #666;
+    font-size: 13px;
+}
+
+.map-search-loading .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 8px;
+}
     </style>
 </head>
 <body>
@@ -374,7 +486,29 @@
                     </div>
                     
                     <!-- 지도 -->
-                    <div id="map"></div>
+                    <div id="map" style="position: relative;">
+    <!-- 지도 검색 박스 -->
+    <div class="map-search-container" id="mapSearchContainer" style="display: none;">
+        <div style="display: flex; align-items: center;">
+            <input type="text" 
+                   class="map-search-input" 
+                   id="mapSearchInput" 
+                   placeholder="장소명이나 주소를 검색하세요..."
+                   autocomplete="off">
+            <button class="map-search-btn" id="mapSearchBtn" onclick="searchLocation()">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        
+        <!-- 검색 결과 -->
+        <div class="map-search-results" id="mapSearchResults">
+            <div class="map-search-loading" id="mapSearchLoading">
+                <div class="spinner-border spinner-border-sm" role="status"></div>
+                검색 중...
+            </div>
+        </div>
+    </div>
+</div>
                 </div>
             </div>
 
@@ -417,7 +551,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // OpenStreetMap 초기화
-        var map = L.map('map').setView([37.5665, 126.9780], 13);
+        var map = L.map('map').setView([37.577837, 126.9780], 12);
 		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     		attribution: '© OpenStreetMap contributors'
 		}).addTo(map);
@@ -648,9 +782,161 @@
     });
 }
 
+		
+		
+		// 위치 검색 함수 (Nominatim API 사용)
+		function searchLocation() {
+		    const query = $('#mapSearchInput').val().trim();
+		    
+		    if (!query) {
+		        alert('검색할 장소를 입력해주세요.');
+		        return;
+		    }
+		    
+		    // 로딩 표시
+		    $('#mapSearchLoading').show();
+		    $('#mapSearchResults').show();
+		    
+		    // Nominatim API를 사용한 위치 검색
+		    $.ajax({
+		        url: 'https://nominatim.openstreetmap.org/search',
+		        method: 'GET',
+		        data: {
+		            q: query,
+		            format: 'json',
+		            limit: 5,
+		            countrycodes: 'kr', // 한국 우선
+		            'accept-language': 'ko,en'
+		        },
+		        success: function(results) {
+		            console.log('검색 결과:', results);
+		            $('#mapSearchLoading').hide();
+		            
+		            if (results && results.length > 0) {
+		                displaySearchResults(results);
+		            } else {
+		                $('#mapSearchResults').html(`
+		                    <div class="map-search-result-item">
+		                        <div class="text-center text-muted">검색 결과가 없습니다.</div>
+		                    </div>
+		                `);
+		            }
+		        },
+		        error: function(xhr, status, error) {
+		            console.error('검색 실패:', error);
+		            $('#mapSearchLoading').hide();
+		            $('#mapSearchResults').html(`
+		                <div class="map-search-result-item">
+		                    <div class="text-center text-danger">검색 중 오류가 발생했습니다.</div>
+		                </div>
+		            `);
+		        }
+		    });
+		}
 
-		// 등록된 출사지 로드 함수 추가
-		// 등록된 출사지 로드 함수 - 좋아요 기능 추가
+		// 검색 결과 표시 함수
+		function displaySearchResults(results) {
+    let html = '';
+    
+    results.forEach(function(result, index) {
+        const name = result.display_name.split(',')[0];
+        const address = result.display_name;
+        
+        html += '<div class="map-search-result-item" onclick="selectSearchResult(' + 
+                result.lat + ', ' + result.lon + ', \'' + name.replace(/'/g, "\\'") + '\')">' +
+                '<div class="map-search-result-name">' + name + '</div>' +
+                '<div class="map-search-result-address">' + address + '</div>' +
+                '</div>';
+    });
+    
+    $('#mapSearchResults').html(html);
+}
+
+		// 검색 결과 선택 함수
+		function selectSearchResult(lat, lng, name) {
+		    console.log('검색 결과 선택:', lat, lng, name);
+		    
+		    // 검색 결과 숨기기
+		    $('#mapSearchResults').hide();
+		    $('#mapSearchInput').val(name);
+		    
+		    // 지도 이동
+		    map.setView([lat, lng], 16);
+		    
+		    <% if(userId != null) { %>
+		        // 로그인된 사용자만 등록 팝업 표시
+		        setTimeout(function() {
+		            showLocationRegisterPopup(lat, lng, name);
+		        }, 500);
+		    <% } else { %>
+		        // 비로그인 사용자에게 알림
+		        setTimeout(function() {
+		            alert('로그인 후 출사지를 등록할 수 있습니다.');
+		        }, 500);
+		    <% } %>
+		}
+
+		// 위치 등록 팝업 표시 함수
+		function showLocationRegisterPopup(lat, lng, locationName) {
+		    // 고유한 ID 생성
+		    const formId = 'spotForm_' + Date.now();
+		    
+		    const popupContent = `
+		        <div class="popup-form">
+		            <div id="${'${formId}'}">
+		                <div style="margin-bottom: 10px; padding: 8px; background: #e3f2fd; border-radius: 4px;">
+		                    <small><i class="fas fa-map-marker-alt"></i> ${'${locationName}'}</small>
+		                </div>
+		                <input type="text" id="${'${formId}'}_title" placeholder="출사지 제목을 입력하세요" required>
+		                <textarea id="${'${formId}'}_description" placeholder="이 장소에 대한 설명을 입력하세요" rows="3" required></textarea>
+		                <div style="display: flex; gap: 5px; margin-bottom: 8px;">
+		                    <input type="text" value="위도: ${'${lat.toFixed(6)}'}" readonly style="flex: 1; background-color: #f8f9fa; color: #666; font-size: 12px;">
+		                    <input type="text" value="경도: ${'${lng.toFixed(6)}'}" readonly style="flex: 1; background-color: #f8f9fa; color: #666; font-size: 12px;">
+		                </div>
+		                <input type="file" id="${'${formId}'}_photo" accept="image/*" required onchange="previewImage(this, '${'${formId}'}')">
+		                <img id="${'${formId}'}_preview" class="image-preview" style="display:none;">
+		                <button type="button" onclick="uploadSpot('${'${formId}'}', ${'${lat}'}, ${'${lng}'})">
+		                    <i class="fas fa-save"></i> 출사지 등록
+		                </button>
+		                <button type="button" onclick="map.closePopup()" style="background-color: #6c757d; margin-top: 5px;">
+		                    <i class="fas fa-times"></i> 취소
+		                </button>
+		            </div>
+		        </div>
+		    `;
+		    
+		    // 기존 팝업 닫기
+		    map.closePopup();
+		    
+		    // 새 마커와 팝업 생성
+		    const tempMarker = L.marker([lat, lng]).addTo(map);
+		    tempMarker.bindPopup(popupContent, {
+		        closeOnClick: false,
+		        autoClose: false,
+		        maxWidth: 320
+		    }).openPopup();
+		    
+		    // 팝업이 닫힐 때 임시 마커 제거
+		    tempMarker.on('popupclose', function() {
+		        map.removeLayer(tempMarker);
+		    });
+		}
+
+		// Enter 키 검색
+		$(document).on('keypress', '#mapSearchInput', function(e) {
+		    if (e.which === 13) {
+		        searchLocation();
+		    }
+		});
+
+		// 검색 결과 외부 클릭 시 숨기기
+		$(document).on('click', function(e) {
+		    if (!$(e.target).closest('.map-search-container').length) {
+		        $('#mapSearchResults').hide();
+		    }
+		});
+
+		// 등록된 출사지 로드 함수
 		function loadSpots() {
     console.log('loadSpots 함수 시작');
     
@@ -718,7 +1004,7 @@
                         popupContent += '<h6>' + (spot.title || '제목 없음') + '</h6>' +
                                        '<p style="margin-bottom:10px;">' + (spot.description || '설명 없음') + '</p>' +
                                        '<img src="getSpotImage.jsp?id=' + spot.id + '" ' +
-                                       'style="width:100%;max-width:200px;height:auto;border-radius:4px;margin-bottom:10px;" ' +
+                                       'style="width:100%;max-width:300px;height:auto;border-radius:4px;margin-bottom:10px;" ' +
                                        'onerror="this.style.display=\'none\'">';
                         
                         // 좋아요 버튼 섹션
@@ -822,15 +1108,16 @@
 
 		// showMap 함수 
 		function showMap() {
-		    console.log('showMap 호출');
-		    $('#postList').hide();
-		    $('#map').show();
-		    map.invalidateSize();
-		    loadSpots(); // 출사지 로드
-		    
-		    $('#navbarNav .nav-link').removeClass('active');
-		    $('#navbarNav .nav-link[data-board-type="map"]').addClass('active');
-		}
+    console.log('showMap 호출');
+    $('#postList').hide();
+    $('#map').show();
+    $('#mapSearchContainer').show(); // 검색 박스 표시
+    map.invalidateSize();
+    loadSpots(); // 출사지 로드
+    
+    $('#navbarNav .nav-link').removeClass('active');
+    $('#navbarNav .nav-link[data-board-type="map"]').addClass('active');
+}
 
         let currentBoardType = 'all';
         let currentPage = 1;
@@ -838,19 +1125,20 @@
 
         // 게시판 표시 함수
         function showBoard(type) {
-            console.log('showBoard 호출:', type);
-            $('#map').hide();
-            $('#postList').show();
-            
-            currentBoardType = type;
-            currentPage = 1;
-            currentSearch = '';
-            loadPosts(currentBoardType, currentPage, '');
-            
-            // 현재 활성화된 탭 표시
-            $('#navbarNav .nav-link').removeClass('active');
-            $(`#navbarNav .nav-link[data-board-type="${type}"]`).addClass('active');
-        }
+    console.log('showBoard 호출:', type);
+    $('#map').hide();
+    $('#mapSearchContainer').hide(); // 검색 박스 숨기기
+    $('#postList').show();
+    
+    currentBoardType = type;
+    currentPage = 1;
+    currentSearch = '';
+    loadPosts(currentBoardType, currentPage, '');
+    
+    // 현재 활성화된 탭 표시
+    $('#navbarNav .nav-link').removeClass('active');
+    $(`#navbarNav .nav-link[data-board-type="${type}"]`).addClass('active');
+}
 
         // 게시글 목록 로드 함수
         function loadPosts(boardType, page, search) {
