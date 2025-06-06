@@ -63,7 +63,7 @@
             display: block;
         }
         .ad-section {
-            height: 600px;
+            height: 900px;
             background-color: #f8f9fa;
             border-radius: 10px;
             padding: 15px;
@@ -437,7 +437,7 @@
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" data-board-type="all" href="#" onclick="showBoard('all')">모든 게시글</a>
+                        <a class="nav-link active" data-board-type="all" href="#" onclick="showBoard('all')">모든게시글</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-board-type="free" href="#" onclick="showBoard('free')">자유게시판</a>
@@ -449,10 +449,10 @@
                         <a class="nav-link" data-board-type="qna" href="#" onclick="showBoard('qna')">질문게시판</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-board-type="market" href="#" onclick="showBoard('market')">장터게시판</a>
+                        <a class="nav-link" data-board-type="market" href="#" onclick="showBoard('market')">거래게시판</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-board-type="map" href="#" onclick="showMap()">출사지도</a>
+                        <a class="nav-link" data-board-type="map" href="#" onclick="showMap()">NationMap™</a>
                     </li>
                 </ul>
             </div>
@@ -467,7 +467,7 @@
                 <div class="ad-section">
                     <!-- 광고 내용 -->
                     <a href="https://www.sigma-global.com/en/" target="_blank">
-                    	<img src="img/ad_poster.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+                    	<img src="img/ad_poster_new.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
                     </a>
                 </div>
             </div>
@@ -551,7 +551,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // OpenStreetMap 초기화
-        var map = L.map('map').setView([37.577837, 126.9780], 12);
+        var map = L.map('map').setView([37.556883, 126.9780], 11);
 		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     		attribution: '© OpenStreetMap contributors'
 		}).addTo(map);
