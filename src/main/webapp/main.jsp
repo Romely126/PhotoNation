@@ -452,7 +452,7 @@
                         <a class="nav-link" data-board-type="market" href="#" onclick="showBoard('market')">거래게시판</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-board-type="map" href="#" onclick="showMap()">NationMap™</a>
+                        <a class="nav-link" data-board-type="map" href="#" onclick="showMap()">NationMaps™</a>
                     </li>
                 </ul>
             </div>
