@@ -29,6 +29,9 @@
     
     int postId = Integer.parseInt(postIdParam);
     
+    // 관리자 권한 체크
+    boolean isAdmin = "admin".equals(currentUserId);
+    
     String dbURL = "jdbc:mysql://localhost:3306/photonation?characterEncoding=utf8&serverTimezone=Asia/Seoul";
     String dbUser = "root";
     String dbPassword = "1234";
@@ -62,7 +65,8 @@
             return;
         }
         
-        if (!currentUserId.equals(postUserId)) {
+        // 권한 체크: 게시글 작성자이거나 관리자인 경우에만 삭제 가능
+        if (!currentUserId.equals(postUserId) && !isAdmin) {
             jsonResponse.put("success", false);
             jsonResponse.put("message", "게시글을 삭제할 권한이 없습니다.");
             out.print(jsonResponse.toString());
@@ -81,7 +85,7 @@
         rs.close();
         pstmt.close();
         
-        // 게시글 관련 데이터 삭제 (순서 중요)
+        // 게시글 관련 데이터 삭제
         
         // 1. 댓글 삭제 (CASCADE로 자동 삭제되지만 명시적으로 삭제)
         String deleteCommentsQuery = "DELETE FROM comments WHERE postId = ?";
@@ -129,7 +133,11 @@
             }
             
             jsonResponse.put("success", true);
-            jsonResponse.put("message", "게시글이 삭제되었습니다.");
+            if (isAdmin) {
+                jsonResponse.put("message", "관리자 권한으로 게시글이 삭제되었습니다.");
+            } else {
+                jsonResponse.put("message", "게시글이 삭제되었습니다.");
+            }
         } else {
             conn.rollback();
             jsonResponse.put("success", false);

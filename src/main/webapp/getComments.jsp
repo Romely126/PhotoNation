@@ -24,7 +24,7 @@
         Class.forName("com.mysql.cj.jdbc.Driver");
         conn = DriverManager.getConnection(jdbcUrl, dbUser, dbPassword);
         
-        // comments 테이블에서 댓글 조회 (이미 nickname이 저장되어 있음)
+        // comments 테이블에서 댓글 조회
         String sql = "SELECT commentId, userId, nickname, content, createdAt FROM comments " +
                     "WHERE postId = ? " +
                     "ORDER BY createdAt ASC";
@@ -53,6 +53,9 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div class="flex-grow-1">
                         <div class="d-flex align-items-center mb-2">
+                            <% if ("admin".equals(userId)) { %>
+                                <i class="fas fa-crown me-1" style="color: #FFD700;"></i>
+                            <% } %>
                             <span class="comment-author"><%= nickname %></span>
                             <span class="comment-date ms-2"><%= formattedDate %></span>
                         </div>
@@ -60,7 +63,7 @@
                             <%= content.replace("\n", "<br>") %>
                         </div>
                     </div>
-                    <% if (currentUserId != null && currentUserId.equals(userId)) { %>
+                    <% if (currentUserId != null && (currentUserId.equals(userId) || "admin".equals(currentUserId))) { %>
                         <div class="ms-2">
                             <button class="btn btn-outline-danger btn-sm" 
                                     onclick="deleteComment(<%= commentId %>)">

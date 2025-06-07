@@ -4,6 +4,7 @@
 <%@ page import="java.util.Date" %>
 <%
     request.setCharacterEncoding("UTF-8");
+
     
     String boardType = request.getParameter("boardType");
     String pageParam = request.getParameter("page");
@@ -60,7 +61,7 @@
         int totalPages = (int) Math.ceil((double) totalPosts / postsPerPage);
         
         // 게시글 목록 조회 - ResultSet 타입을 TYPE_SCROLL_INSENSITIVE로 변경
-        String query = "SELECT p.postId, p.title, p.nickname, p.createdAt, p.viewCount, p.likeCount, p.boardType, " +
+        String query = "SELECT p.postId, p.title, p.nickname, p.userId, p.createdAt, p.viewCount, p.likeCount, p.boardType, " +
                       "(SELECT COUNT(*) FROM comments c WHERE c.postId = p.postId) as commentCount, " +
                       "(SELECT fileName FROM post_images pi WHERE pi.postId = p.postId LIMIT 1) as thumbnail " +
                       "FROM posts p";
@@ -76,7 +77,8 @@
             }
         }
         
-        query += " ORDER BY p.createdAt DESC LIMIT ? OFFSET ?";
+        // admin 글들을 최상단에, 그 다음은 최신순으로 정렬
+        query += " ORDER BY CASE WHEN p.userId = 'admin' THEN 0 ELSE 1 END, p.createdAt DESC LIMIT ? OFFSET ?";
         
         // ResultSet 타입을 TYPE_SCROLL_INSENSITIVE로 설정
         pstmt = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -145,6 +147,7 @@
             int postId = rs.getInt("postId");
             String title = rs.getString("title");
             String nickname = rs.getString("nickname");
+            String userId = rs.getString("userId");
             Timestamp createdAt = rs.getTimestamp("createdAt");
             int viewCount = rs.getInt("viewCount");
             int likeCount = rs.getInt("likeCount");
@@ -201,7 +204,10 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="text-muted small">
-                        <i class="fas fa-user"></i> <%= nickname %>
+                        <% if ("admin".equals(userId)) { %>
+                            <i class="fas fa-crown" style="color: #FFD700; margin-right: 5px;"></i><%= nickname %>
+                        <% } else {%>
+                        <i class="fas fa-user"></i> <%= nickname %> <%} %> 
                     </span>
                     <div class="text-muted small">
                         <i class="fas fa-eye"></i> <%= viewCount %>

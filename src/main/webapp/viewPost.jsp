@@ -8,6 +8,9 @@ String userId = (String) session.getAttribute("userId");
 String postId = request.getParameter("postId");
 int postIdInt = Integer.parseInt(postId);
 
+// 관리자 권한 체크
+boolean isAdmin = "admin".equals(userId);
+
     // 데이터베이스 연결 정보 (실제 환경에 맞게 수정)
     String jdbcUrl = "jdbc:mysql://localhost:3306/photonation";
     String dbUser = "root";
@@ -170,6 +173,10 @@ int postIdInt = Integer.parseInt(postId);
             font-weight: bold;
             color: #495057;
         }
+        .comment-author .admin-crown {
+            color: #FFD700;
+            margin-right: 5px;
+        }
         .comment-date {
             color: #6c757d;
             font-size: 0.85em;
@@ -265,7 +272,12 @@ int postIdInt = Integer.parseInt(postId);
                             <span class="board-type-badge <%= badgeClass %>"><%= boardTypeKor %></span>
                             <h2 class="mb-3"><%= title %></h2>
                             <div class="post-meta">
-                                <span><i class="fas fa-user"></i> <%= author %></span>
+                                <span>
+                                    <% if ("admin".equals(authorId)) { %>
+                                        <i class="fas fa-crown" style="color: #FFD700; margin-right: 5px;"></i> <%= author %>
+                                    <% } else { %>
+                                    <i class="fas fa-user"></i> <%= author %> <%} %>
+                                </span>
                                 <span class="ms-3"><i class="fas fa-calendar"></i> <%= createdAt %></span>
                                 <span class="ms-3"><i class="fas fa-eye"></i> 조회 <%= views %></span>
                                 <span class="ms-3"><i class="fas fa-heart"></i> 좋아요 <span id="likeCount"><%= likes %></span></span>
@@ -293,15 +305,17 @@ int postIdInt = Integer.parseInt(postId);
                                     <% } %>
                                 </div>
                                 <div>
-                                    <% if (userId != null && userId.equals(authorId)) { %>
-                                        <a href="editPost.jsp?postId=<%= postId %>" class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-edit"></i> 수정
-                                        </a>
-                                        <button class="btn btn-outline-danger btn-sm" onclick="deletePost(<%= postId %>)">
-                                            <i class="fas fa-trash"></i> 삭제
-                                        </button>
-                                    <% } %>
-                                </div>
+    								<% if (userId != null && (userId.equals(authorId) || "admin".equals(userId))) { %>
+        								<% if (userId.equals(authorId)) { %>
+            								<a href="editPost.jsp?postId=<%= postId %>" class="btn btn-outline-primary btn-sm">
+                								<i class="fas fa-edit"></i> 수정
+            								</a>
+        								<% } %>
+        								<button class="btn btn-outline-danger btn-sm" onclick="deletePost(<%= postId %>)">
+            								<i class="fas fa-trash"></i> 삭제
+        								</button>
+    								<% } %>
+								</div>
                             </div>
                         </div>
                     </div>

@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ page import="java.sql.*" %>
+<%@ include file="sessionCheck.jsp" %>
 <%
     String userNickname = (String) session.getAttribute("userNickname");
     String userId = (String) session.getAttribute("userId");
@@ -518,16 +519,25 @@
                 <div class="login-section">
                     <% if(userId != null && userNickname != null) { %>
                         <!-- 로그인된 상태 -->
-                        <div class="text-center">
-                            <img src="getProfileImage.jsp?userId=<%= userId %>" 
-                                 alt="프로필 사진" 
-                                 class="profile-img"
-                                 onerror="this.src='img/default_profile.jpg'">
-                            <h6 class="mb-2"><%= userNickname %></h6>
-                            <a href="mypage.jsp" class="btn btn-primary btn-sm btn-custom" onclick="window.open(this.href, '_blank'); return false;">마이페이지</a>
-                            <a href="writePost.jsp" class="btn btn-success btn-sm btn-custom">글쓰기</a>
-                            <a href="logout.jsp" class="btn btn-secondary btn-sm btn-custom">로그아웃</a>
-                        </div>
+						<div class="text-center">
+    						<img src="getProfileImage.jsp?userId=<%= userId %>" 
+         						alt="프로필 사진" 
+         						class="profile-img"
+         							onerror="this.src='img/default_profile.jpg'">
+    						<h6 class="mb-2">
+        						<% if("admin".equals(userId)) { %>
+            						<i class="fas fa-crown text-warning ms-1" title="관리자"></i>
+        						<% } %>
+        						<%= userNickname %>
+    						</h6>
+    						<% if("admin".equals(userId)) { %>
+        						<a href="adminPanel.jsp" class="btn btn-primary btn-sm btn-custom" target="_blank">관리자 패널</a>
+    						<% } else { %>
+        						<a href="mypage.jsp" class="btn btn-primary btn-sm btn-custom" onclick="window.open(this.href, '_blank'); return false;">마이페이지</a>
+    						<% } %>
+    						<a href="writePost.jsp" class="btn btn-success btn-sm btn-custom">글쓰기</a>
+    						<a href="logout.jsp" class="btn btn-secondary btn-sm btn-custom">로그아웃</a>
+						</div>
                     <% } else { %>
                         <!-- 로그인되지 않은 상태 -->
                         <div class="text-center">
@@ -1033,7 +1043,7 @@
                         
                         <% if(userId != null) { %>
                         // 삭제 버튼 (자신이 등록한 출사지만)
-                        if (spot.user_id === '<%= userId %>') {
+                        if (spot.user_id === '<%= userId %>' || '<%= userId %>' === 'admin') {
                             popupContent += '<button onclick="deleteSpot(' + spot.id + ')" ' +
                                            'class="btn btn-sm btn-danger" style="width:100%;">삭제</button>';
                         }

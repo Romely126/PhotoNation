@@ -29,14 +29,28 @@ try {
     Class.forName("com.mysql.cj.jdbc.Driver");
     conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/photonation", "root", "1234");
 
-    // 사용자 인증 (해시화된 비밀번호로 비교)
-    String loginSQL = "SELECT id, name, nickname, email FROM user_info WHERE id = ? AND password = ?";
+    // 사용자 인증 (해시화된 비밀번호로 비교) + actived 상태 확인
+    String loginSQL = "SELECT id, name, nickname, email, actived FROM user_info WHERE id = ? AND password = ?";
     pstmt = conn.prepareStatement(loginSQL);
     pstmt.setString(1, userId);
     pstmt.setString(2, hashedPassword);
     rs = pstmt.executeQuery();
 
     if (rs.next()) {
+        // 계정 활성화 상태 확인
+        int actived = rs.getInt("actived");
+        
+        if (actived == 0) {
+            // 계정이 비활성화된 경우
+%>
+<script>
+    alert("접근이 제한된 계정입니다. 관리자에게 문의 부탁드립니다.");
+    location.href = "login.jsp";
+</script>
+<%
+            return;
+        }
+        
         // 로그인 성공 - 세션에 사용자 정보 저장
         session.setAttribute("userId", rs.getString("id"));
         session.setAttribute("userName", rs.getString("name"));
