@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS user_info (
     detailAddress VARCHAR(100) NOT NULL,         -- 상세주소
     profileImg LONGBLOB,                         -- 프로필 이미지
     profileImgType VARCHAR(50),                  -- 프로필 이미지 타입
-    joinDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 가입일, 기본값 현재 시간
+    joinDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 가입일, 기본값 현재 시간
+    actived TINYINT(1) NOT NULL DEFAULT 1        -- actived 컬럼, 기본값 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -120,11 +121,12 @@ CREATE TABLE photo_spots (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 1. photo_spots 테이블에 좋아요 수 컬럼 추가
+
 ALTER TABLE photo_spots 
 ADD COLUMN like_count INT DEFAULT 0;
 
--- 2. 좋아요 관계를 저장할 테이블 생성
+
+
 CREATE TABLE photo_spot_likes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     spot_id INT NOT NULL,
