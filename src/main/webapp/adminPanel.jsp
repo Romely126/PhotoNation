@@ -334,7 +334,7 @@
     <div class="container">
         <div class="header">
             <h1>PhotoNation 관리자 패널</h1>
-            <p>커뮤니티 통계 및 회원 관리</p>
+            <p>환영합니다 관리자님. PhotoNation since 2025</p>
         </div>
 
         <div class="tab-container">
@@ -368,7 +368,7 @@
                         <div class="stat-label">작성된 댓글</div>
                     </div>
                     <div class="stat-card">
-                        <h3>사진 출사지</h3>
+                        <h3>출사지</h3>
                         <div class="stat-number" id="totalPhotoSpots">0</div>
                         <div class="stat-label">등록된 출사지</div>
                     </div>
@@ -494,17 +494,6 @@
 
         // 통계 데이터 로드
         function loadStats() {
-            // 실제 구현에서는 AJAX를 통해 서버에서 데이터를 가져와야 합니다.
-            // 여기서는 샘플 데이터로 대체합니다.
-            
-            // 샘플 통계 데이터
-            document.getElementById('totalUsers').textContent = '1,245';
-            document.getElementById('activeUsers').textContent = '1,156';
-            document.getElementById('totalPosts').textContent = '3,842';
-            document.getElementById('totalComments').textContent = '12,367';
-            document.getElementById('totalPhotoSpots').textContent = '287';
-            document.getElementById('withdrawnUsers').textContent = '89';
-            
             // 게시판별 게시글 차트
             const boardCtx = document.getElementById('boardChart').getContext('2d');
             new Chart(boardCtx, {
@@ -678,7 +667,7 @@
                 		displayUsers(allUsers);
                 		selectedUser = null;
                 		document.getElementById('userActions').classList.remove('show');
-                		showAlert('userAlert', `회원 ${'${actionText}'}이 완료되었습니다.`, 'success');
+                		showAlert('userAlert', `회원 ${'${actionText}'}를 완료하였습니다.`, 'success');
             		} else {
                 		showAlert('userAlert', data.message || '처리 중 오류가 발생했습니다.', 'error');
             		}
@@ -1010,7 +999,7 @@
     %>
 
     <script>
-        // 실제 DB 데이터로 통계 업데이트
+        // DB 데이터로 통계 업데이트
         function loadRealStats() {
             document.getElementById('totalUsers').textContent = '<%= totalUsers %>';
             document.getElementById('activeUsers').textContent = '<%= activeUsers %>';
@@ -1019,7 +1008,7 @@
             document.getElementById('totalPhotoSpots').textContent = '<%= totalPhotoSpots %>';
             document.getElementById('withdrawnUsers').textContent = '<%= withdrawnUsers %>';
             
-            // 게시판별 게시글 차트 (실제 데이터)
+            // 게시판별 게시글 차트
             const boardCtx = document.getElementById('boardChart').getContext('2d');
             new Chart(boardCtx, {
                 type: 'doughnut',
@@ -1046,7 +1035,7 @@
                 }
             });
             
-            // 월별 가입 현황 차트 (실제 데이터)
+            // 월별 가입 현황 차트
             const joinCtx = document.getElementById('userJoinChart').getContext('2d');
             new Chart(joinCtx, {
                 type: 'line',
@@ -1072,7 +1061,7 @@
                 }
             });
             
-            // 성별 분포 차트 (실제 데이터)
+            // 성별 분포 차트
             const genderCtx = document.getElementById('genderChart').getContext('2d');
             new Chart(genderCtx, {
                 type: 'bar',
@@ -1099,7 +1088,7 @@
             });
         }
 
-        // 실제 회원 데이터 로드
+        // 회원 데이터 로드
         function loadRealUsers() {
             fetch('getUserList.jsp')
                 .then(response => response.json())
@@ -1113,7 +1102,7 @@
                 });
         }
 
-        // 실제 탈퇴 회원 데이터 로드
+        // 탈퇴 회원 데이터 로드
         function loadRealWithdrawnUsers() {
             fetch('getWithdrawnUserList.jsp')
                 .then(response => response.json())
@@ -1127,7 +1116,7 @@
                 });
         }
 
-        // 실제 회원 상태 변경
+        // 회원 상태 변경
         function toggleUserStatusReal(action) {
             if (!selectedUser) {
                 showAlert('userAlert', '먼저 회원을 선택해주세요.', 'error');
@@ -1152,7 +1141,7 @@
                         displayUsers(allUsers);
                         selectedUser = null;
                         document.getElementById('userActions').classList.remove('show');
-                        showAlert('userAlert', `회원 ${'${actionText}'}이 완료되었습니다.`, 'success');
+                        showAlert('userAlert', `회원 ${'${actionText}'}를 완료하였습니다.`, 'success');
                     } else {
                         showAlert('userAlert', data.message || '처리 중 오류가 발생했습니다.', 'error');
                     }
@@ -1164,7 +1153,7 @@
             }
         }
 
-        // 실제 계정 복구
+        // 계정 복구
         function restoreUserReal() {
             if (!selectedWithdrawnUser) {
                 showAlert('withdrawnAlert', '먼저 탈퇴 회원을 선택해주세요.', 'error');
@@ -1198,14 +1187,14 @@
             }
         }
 
-        // 실제 데이터 완전 삭제
+        // 데이터 완전 삭제
         function deleteUserReal() {
             if (!selectedWithdrawnUser) {
                 showAlert('withdrawnAlert', '먼저 탈퇴 회원을 선택해주세요.', 'error');
                 return;
             }
             
-            if (confirm(`${'${selectedWithdrawnUser.nickname}'}(${'${selectedWithdrawnUser.id}'}) 데이터를 완전히 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+            if (confirm(`${'${selectedWithdrawnUser.nickname}'}(${'${selectedWithdrawnUser.id}'})의 데이터를 완전히 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
                 fetch('deleteUser.jsp', {
                     method: 'POST',
                     headers: {
@@ -1232,32 +1221,27 @@
             }
         }
 
-        // loadStats 함수를 실제 데이터 로드 함수로 교체
+        // 각 함수 더미데이터를 실제 데이터로 변경
         function loadStats() {
             loadRealStats();
         }
 
-        // loadUsers 함수를 실제 데이터 로드 함수로 교체
         function loadUsers() {
             loadRealUsers();
         }
 
-        // loadWithdrawnUsers 함수를 실제 데이터 로드 함수로 교체
         function loadWithdrawnUsers() {
             loadRealWithdrawnUsers();
         }
 
-        // toggleUserStatus 함수를 실제 함수로 교체
         function toggleUserStatus(action) {
             toggleUserStatusReal(action);
         }
 
-        // restoreUser 함수를 실제 함수로 교체
         function restoreUser() {
             restoreUserReal();
         }
 
-        // deleteUser 함수를 실제 함수로 교체
         function deleteUser() {
             deleteUserReal();
         }

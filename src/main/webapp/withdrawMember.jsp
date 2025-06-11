@@ -53,7 +53,7 @@
         insertLostUserStmt.setString(7, rs.getString("phoneNum"));
         insertLostUserStmt.setString(8, rs.getString("email"));
         insertLostUserStmt.setString(9, rs.getString("postNum"));
-        insertLostUserStmt.setString(10, rs.getString("address")); // 기본주소만 저장
+        insertLostUserStmt.setString(10, rs.getString("address"));
         insertLostUserStmt.setTimestamp(11, rs.getTimestamp("joinDate"));
         
         int insertLostUserResult = insertLostUserStmt.executeUpdate();
@@ -84,7 +84,7 @@
         deleteReactionsStmt.executeUpdate();
         deleteReactionsStmt.close();
         
-        // 4-2. 댓글 삭제 (comments 테이블) - CASCADE로 설정되어 있지만 명시적으로 삭제
+        // 4-2. 댓글 삭제
         String deleteCommentsSql = "DELETE FROM comments WHERE userId = ?";
         PreparedStatement deleteCommentsStmt = conn.prepareStatement(deleteCommentsSql);
         deleteCommentsStmt.setString(1, userId);
@@ -109,7 +109,7 @@
         deletePostCommentsStmt.executeUpdate();
         deletePostCommentsStmt.close();
         
-        // 4-5. 게시글 이미지 삭제 (post_images 테이블)
+        // 4-5. 게시글 이미지 삭제
         String deletePostImagesSql = "DELETE pi FROM post_images pi " +
                                     "INNER JOIN posts p ON pi.postId = p.postId " +
                                     "WHERE p.userId = ?";
@@ -118,14 +118,14 @@
         deletePostImagesStmt.executeUpdate();
         deletePostImagesStmt.close();
         
-        // 4-6. 게시글 삭제 (posts 테이블)
+        // 4-6. 게시글 삭제
         String deletePostsSql = "DELETE FROM posts WHERE userId = ?";
         PreparedStatement deletePostsStmt = conn.prepareStatement(deletePostsSql);
         deletePostsStmt.setString(1, userId);
         deletePostsStmt.executeUpdate();
         deletePostsStmt.close();
         
-        // 5. 마지막으로 user_info 테이블에서 사용자 데이터 삭제
+        // 5. user_info 테이블에서 사용자 데이터 삭제
         String deleteUserSql = "DELETE FROM user_info WHERE id = ?";
         deleteStmt = conn.prepareStatement(deleteUserSql);
         deleteStmt.setString(1, userId);

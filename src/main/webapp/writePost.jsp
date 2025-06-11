@@ -198,7 +198,7 @@
             summernoteInitialized = true;
         }
 
-        // 게시판 타입 변경 시 처리 (개선된 버전)
+        // 게시판 타입 변경 시 처리 
         function handleBoardTypeChange() {
             const boardType = $('#boardType').val();
             
@@ -241,7 +241,7 @@
             $('#qnaTemplateNotice').hide();
         }
 
-        // 내용 초기화 (템플릿 제거)
+        // 내용 초기화
         function clearContent() {
             if (summernoteInitialized) {
                 const currentContent = $('#content').summernote('code').trim();

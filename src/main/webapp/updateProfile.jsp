@@ -26,7 +26,7 @@
         String detailAddress = request.getParameter("detailAddress");
         String hashedNewPassword = request.getParameter("hashedNewPassword");
         
-     	// 주소 통합 처리 (회원가입과 동일하게)
+     	// 주소 통합 처리
         String fullAddress = address;
         if(detailAddress != null && !detailAddress.trim().isEmpty()) {
             fullAddress = address + " " + detailAddress.trim();
@@ -136,7 +136,7 @@
         
      // 비밀번호 변경 여부에 따라 쿼리 분기
         boolean updatePassword = (hashedNewPassword != null && !hashedNewPassword.trim().isEmpty());
-        String encryptedPassword = hashedNewPassword; // 이미 클라이언트에서 해싱됨
+        String encryptedPassword = hashedNewPassword;
         
         if(profileImgData != null && updatePassword) {
             // 프로필 이미지와 비밀번호 모두 업데이트
@@ -196,7 +196,7 @@
             // 세션의 닉네임 정보도 업데이트
             session.setAttribute("userNickname", nickname);
             
-            // 게시글과 댓글의 닉네임도 업데이트 (옵션)
+            // 게시글과 댓글의 닉네임도 업데이트
             String updatePostsSql = "UPDATE posts SET nickname=? WHERE userId=?";
             PreparedStatement updatePostsStmt = conn.prepareStatement(updatePostsSql);
             updatePostsStmt.setString(1, nickname);

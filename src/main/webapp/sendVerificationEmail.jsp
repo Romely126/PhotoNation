@@ -10,8 +10,7 @@
     Connection conn = null;
     PreparedStatement pstmt = null;
     ResultSet rs = null;
-    
-    // 기존 'session' 이름이 아니라 'mailSession'으로 변경
+
     javax.mail.Session mailSession = null;
 
     try {
@@ -42,7 +41,7 @@
         // 강제 TLS 1.2 사용
         properties.put("mail.smtp.ssl.protocols", "TLSv1.2");
 
-        // 'mailSession'을 사용하여 세션 생성
+        // 세션 생성
         mailSession = javax.mail.Session.getInstance(properties, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication("vega0101938@gmail.com", "nifseayweoffhvir");  // 이메일과 앱 비밀번호

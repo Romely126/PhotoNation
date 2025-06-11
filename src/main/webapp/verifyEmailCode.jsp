@@ -6,7 +6,7 @@ String emailCode = request.getParameter("emailCode");
 
 // 파라미터 누락 시 처리
 if (email == null || emailCode == null) {
-    response.getWriter().write("missing_parameters");  // 파라미터가 누락된 경우
+    response.getWriter().write("missing_parameters");
     return;
 }
 
@@ -45,7 +45,7 @@ try {
 
             pstmt = conn.prepareStatement(updateSQL);
             pstmt.setString(1, email);
-            pstmt.setString(2, emailCode);  // `storedCode`가 아닌 `emailCode`로 일치 여부 확인
+            pstmt.setString(2, emailCode);
             pstmt.executeUpdate();
             response.getWriter().write("success");
         } else {

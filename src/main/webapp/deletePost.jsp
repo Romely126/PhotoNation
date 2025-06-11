@@ -86,8 +86,7 @@
         pstmt.close();
         
         // 게시글 관련 데이터 삭제
-        
-        // 1. 댓글 삭제 (CASCADE로 자동 삭제되지만 명시적으로 삭제)
+        // 1. 댓글 삭제
         String deleteCommentsQuery = "DELETE FROM comments WHERE postId = ?";
         pstmt = conn.prepareStatement(deleteCommentsQuery);
         pstmt.setInt(1, postId);

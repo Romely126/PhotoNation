@@ -18,8 +18,8 @@
         conn = DriverManager.getConnection(url, "root", "1234");
         
         // 복합적인 인기도 점수를 계산하는 SQL
-        // 가중치: 좋아요 수 * 3 + 조회수 * 1 + 댓글수 * 2 + 최신성 보너스
-        // 최신성 보너스: 24시간 이내 게시글에는 추가 점수 부여
+        // 가중치: 좋아요 수 * 3 + 조회수 * 1 + 댓글수 * 2 + 최신글 보너스
+        // 최신글 보너스: 24시간 이내 게시글에는 추가 점수 부여
         String sql = 
     "SELECT " +
     "    p.postId, " +
@@ -110,7 +110,7 @@
             boolean isNew = false;
             if(createdAt != null) {
                 long timeDiff = System.currentTimeMillis() - createdAt.getTime();
-                isNew = timeDiff < 24 * 60 * 60 * 1000; // 24시간
+                isNew = timeDiff < 24 * 60 * 60 * 1000;
             }
 %>
             <div class="popular-post-item post-item" data-post-id="<%= postId %>" style="cursor: pointer;">

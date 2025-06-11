@@ -12,7 +12,6 @@
 
 
 <%!
-    // 메서드 선언부 - 여기서만 메서드 선언 가능
     String getPartValue(HttpServletRequest request, String partName) {
         try {
             Part part = request.getPart(partName);

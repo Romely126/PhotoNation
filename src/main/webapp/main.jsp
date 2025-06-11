@@ -897,7 +897,7 @@
 		                <div style="margin-bottom: 10px; padding: 8px; background: #e3f2fd; border-radius: 4px;">
 		                    <small><i class="fas fa-map-marker-alt"></i> ${'${locationName}'}</small>
 		                </div>
-		                <input type="text" id="${'${formId}'}_title" placeholder="출사지 제목을 입력하세요" required>
+		                <input type="text" id="${'${formId}'}_title" placeholder="출사지 이름을 입력하세요" required>
 		                <textarea id="${'${formId}'}_description" placeholder="이 장소에 대한 설명을 입력하세요" rows="3" required></textarea>
 		                <div style="display: flex; gap: 5px; margin-bottom: 8px;">
 		                    <input type="text" value="위도: ${'${lat.toFixed(6)}'}" readonly style="flex: 1; background-color: #f8f9fa; color: #666; font-size: 12px;">
@@ -1198,7 +1198,7 @@
             loadPosts(currentBoardType, 1, searchValue);
         }
 
-        // 게시글 상세보기 함수 - 단순화
+        // 게시글 상세보기 함수
         function viewPost(postId) {
             console.log('viewPost 함수 호출, postId:', postId);
             
@@ -1224,7 +1224,7 @@
         }
 
 
-        // 인기글 로드 함수 - 캐시 방지 및 오류 처리 강화
+        // 인기글 로드 함수
 function loadPopularPosts() {
     console.log('loadPopularPosts 호출 - ' + new Date().toLocaleTimeString());
     
@@ -1291,7 +1291,7 @@ function startRealTimeUpdates() {
     // 초기 로드
     loadPopularPosts();
     
-    // 30초마다 업데이트 (더 자주 업데이트)
+    // 30초마다 업데이트
     updateInterval = setInterval(updateIfVisible, 30000);
     
     // 페이지 포커스 시 즉시 업데이트
@@ -1320,7 +1320,6 @@ function addRefreshButton() {
         </div>
     `;
     
-    // 기존 제목을 새로운 헤더로 교체
     $('.popular-posts h6').replaceWith(refreshButton);
 }
         // Enter 키 검색 - 이벤트 위임 사용

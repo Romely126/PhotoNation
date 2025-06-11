@@ -11,7 +11,7 @@ int postIdInt = Integer.parseInt(postId);
 // 관리자 권한 체크
 boolean isAdmin = "admin".equals(userId);
 
-    // 데이터베이스 연결 정보 (실제 환경에 맞게 수정)
+    // 데이터베이스 연결 정보
     String jdbcUrl = "jdbc:mysql://localhost:3306/photonation";
     String dbUser = "root";
     String dbPassword = "1234";
@@ -43,7 +43,7 @@ boolean isAdmin = "admin".equals(userId);
         pstmt.executeUpdate();
         pstmt.close();
         
-        // 게시글 정보 조회 (posts 테이블에 nickname이 저장되어 있음)
+        // 게시글 정보 조회
         String postSql = "SELECT * FROM posts WHERE postId = ?";
         pstmt = conn.prepareStatement(postSql);
         pstmt.setInt(1, postIdInt);
@@ -355,7 +355,7 @@ boolean isAdmin = "admin".equals(userId);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
- // 좋아요 토글 함수 (수정된 버전)
+ // 좋아요 토글 함수
     function toggleLike(postId) {
         <% if (userId == null) { %>
             alert('로그인이 필요합니다.');
@@ -366,7 +366,7 @@ boolean isAdmin = "admin".equals(userId);
             url: 'toggleLike.jsp',
             method: 'POST',
             data: { postId: postId },
-            dataType: 'json', // 응답 타입을 JSON으로 명시
+            dataType: 'json',
             success: function(result) {
                 if (result.success) {
                     $('#likeCount').text(result.likeCount);
@@ -392,7 +392,7 @@ boolean isAdmin = "admin".equals(userId);
         });
     }
 
- // 댓글 작성 함수 (수정된 버전)
+ // 댓글 작성 함수
     function addComment() {
         const content = $('#commentContent').val().trim();
         if (!content) {
@@ -423,7 +423,7 @@ boolean isAdmin = "admin".equals(userId);
         });
     }
 
- // 댓글 삭제 함수 (수정된 버전)
+ // 댓글 삭제 함수
     function deleteComment(commentId) {
         if (confirm('댓글을 삭제하시겠습니까?')) {
             $.ajax({
@@ -446,7 +446,7 @@ boolean isAdmin = "admin".equals(userId);
         }
     }
 
- // 게시글 삭제 함수 (수정된 버전)
+ // 게시글 삭제 함수
     function deletePost(postId) {
         if (confirm('게시글을 삭제하시겠습니까?')) {
             $.ajax({

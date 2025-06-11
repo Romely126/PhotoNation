@@ -19,7 +19,7 @@ try {
     Class.forName("com.mysql.cj.jdbc.Driver");
     conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/photonation", "root", "1234");
 
-    // 먼저 해당 이메일이 인증되었는지 확인
+    // 해당 이메일이 인증되었는지 확인
     String verifySQL = "SELECT is_verified FROM email_verifications WHERE email = ? AND is_verified = true ORDER BY created_at DESC LIMIT 1";
     pstmt = conn.prepareStatement(verifySQL);
     pstmt.setString(1, userEmail);

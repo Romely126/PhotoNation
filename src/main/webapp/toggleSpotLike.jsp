@@ -82,7 +82,7 @@
             likeCount = rs.getInt("like_count");
         }
         
-        // 수동으로 좋아요 수 업데이트 (트리거가 없는 경우를 대비)
+        // 수동으로 좋아요 수 업데이트
         if (pstmt != null) pstmt.close();
         if (rs != null) rs.close();
         

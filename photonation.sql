@@ -1,5 +1,3 @@
-CREATE DATABASE IF NOT EXISTS photonation DEFAULT CHARACTER SET utf8mb4;
-
 USE photonation;
 
 -- 사용자 정보 테이블
@@ -22,6 +20,15 @@ CREATE TABLE IF NOT EXISTS user_info (
     actived TINYINT(1) NOT NULL DEFAULT 1        -- actived 컬럼, 기본값 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 이메일 인증 정보를 저장하는 테이블
+CREATE TABLE email_verification (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  verification_code VARCHAR(6) NOT NULL,
+  is_verified TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  expired_at TIMESTAMP
+);
 
 -- 탈퇴한 사용자들의 데이터 적재
 CREATE TABLE lost_user (
@@ -51,8 +58,6 @@ CREATE TABLE lost_user_profiles (
     PRIMARY KEY (id, withdrawDate),
     FOREIGN KEY (id, withdrawDate) REFERENCES lost_user(id, withdrawDate) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='탈퇴한 사용자 프로필 이미지 보관 테이블';
-
-
 
 -- 게시글 테이블
 CREATE TABLE posts (
@@ -108,7 +113,7 @@ CREATE TABLE comments (
     FOREIGN KEY (userId) REFERENCES user_info(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
+-- 포토 스팟 테이블
 CREATE TABLE photo_spots (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
@@ -118,15 +123,11 @@ CREATE TABLE photo_spots (
     photo_name VARCHAR(255),
     photo_data LONGBLOB,
     user_id VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    like_count INT DEFAULT 0
 );
 
-
-ALTER TABLE photo_spots 
-ADD COLUMN like_count INT DEFAULT 0;
-
-
-
+-- 포토 스팟 좋아요(추천) 테이블
 CREATE TABLE photo_spot_likes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     spot_id INT NOT NULL,

@@ -58,13 +58,13 @@
     String detailAddress = request.getParameter("detailAddress");
     String fullAddress = address + " " + detailAddress;
 
-    Part filePart = request.getPart("profileImg");  // Jakarta Servlet API 사용
+    Part filePart = request.getPart("profileImg");
     InputStream inputStream = null;
     String profileImgType = null;
     byte[] profileImgData = null;
     
     if (filePart != null && filePart.getSize() > 0) {
-        profileImgType = filePart.getContentType(); // MIME type (e.g., image/jpeg)
+        profileImgType = filePart.getContentType();
         inputStream = filePart.getInputStream();
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         byte[] tmp = new byte[4096];

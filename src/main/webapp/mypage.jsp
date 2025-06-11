@@ -31,7 +31,7 @@
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/photonation?useUnicode=true&characterEncoding=utf8", "root", "1234");
         
-        // 기본 사용자 정보 조회 (detailAddress 제거)
+        // 기본 사용자 정보 조회
         String userSql = "SELECT name, sex, birthday, phoneNum, email, postNum, address FROM user_info WHERE id = ?";
         PreparedStatement userStmt = conn.prepareStatement(userSql);
         userStmt.setString(1, userId);
@@ -396,8 +396,8 @@
                                     if(postCount >= 50) {
                                         grade = "사진작가";
                                         gradeIcon = "📸";
-                                    } else if(postCount >= 20) {
-                                        grade = "열성회원";
+                                    } else if(postCount >= 10) {
+                                        grade = "열심회원";
                                         gradeIcon = "⭐";
                                     } else if(postCount >= 5) {
                                         grade = "일반회원";
@@ -677,7 +677,7 @@
     		}
 		}
         
-     // 페이지 로드 시 이벤트 리스너 등록
+     	// 페이지 로드 시 이벤트 리스너 등록
         $(document).ready(function() {
             // 탈퇴 확인 텍스트 입력 시 실시간 체크
             $('#withdrawConfirm').on('input', checkWithdrawText);
@@ -1022,7 +1022,7 @@
     }
     
     // 두 번째 확인 (더 강력한 경고)
-    if (!confirm('⚠️ 최종 확인 ⚠️\n\n회원탈퇴를 진행하면:\n\n✗ 모든 개인정보가 영구 삭제됩니다\n✗ 작성한 게시글과 댓글이 모두 삭제됩니다\n✗ 받은 좋아요와 활동 기록이 삭제됩니다\n✗ 이 작업은 되돌릴 수 없습니다\n\n정말로 계속 진행하시겠습니까?')) {
+    if (!confirm('⚠️ 최종 확인 ⚠️\n\n회원탈퇴를 진행하면:\n\n✗ 모든 개인정보가 삭제됩니다\n✗ 작성한 게시글과 댓글이 모두 삭제됩니다\n✗ 받은 좋아요와 활동 기록이 삭제됩니다\n✗ 이 작업은 되돌릴 수 없습니다\n\n정말로 계속 진행하시겠습니까?')) {
         return;
     }
     
@@ -1046,7 +1046,7 @@
             
             if (response.trim() === 'success') {
                 // 성공 메시지
-                alert('✅ 회원탈퇴가 완료되었습니다.\n\n그동안 PhotoNation을 이용해주셔서 감사합니다.\n안전한 하루 되세요! 😊');
+                alert('✅ 회원탈퇴가 완료되었습니다.\n\n그동안 PhotoNation을 이용해주셔서 감사합니다 😊');
                 
                 // 부모 창을 로그인 페이지로 리다이렉트
                 if (window.opener) {

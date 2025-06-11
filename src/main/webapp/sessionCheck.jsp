@@ -27,7 +27,7 @@ if (sessionUserId != null) {
                 session.invalidate();
 %>
 <script>
-	//이 부분 유니코드 이스케이프 시퀀스로 작성. -> 타 jsp에 해당 페이지를 import해서 사용하는데 화면 상단에 encodeType 명시 시 참조하는 jsp파일과 타입 명시가 중복됨.
+	//이 부분 유니코드 이스케이프 시퀀스로 작성 -> 타 jsp에 해당 페이지를 import해서 사용하는데 화면 상단에 encodeType 명시 시 참조하는 jsp파일과 타입 명시가 중복됨.
 	alert("\uC811\uADFC\uC774 \uC81C\uD55C\uB41C \uACC4\uC815\uC785\uB2C8\uB2E4. \uAD00\uB9AC\uC790\uC5D0\uAC8C \uBB38\uC758 \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4.");
     location.href = "login.jsp";
 </script>
@@ -48,7 +48,7 @@ if (sessionUserId != null) {
         
     } catch (Exception e) {
         e.printStackTrace();
-        // DB 연결 오류 시에도 세션 유지 (선택사항)
+        // DB 연결 오류 시에도 세션 유지
     } finally {
         try {
             if (rs != null) rs.close();

@@ -18,7 +18,7 @@
         Class.forName("com.mysql.cj.jdbc.Driver");
         conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/photonation", "root", "1234");
         
-        String query = "SELECT id, nickname, name, sex, joinDate, actived FROM user_info ORDER BY joinDate DESC";
+        String query = "SELECT id, nickname, name, sex, joinDate, actived FROM user_info WHERE id != 'admin' ORDER BY joinDate DESC";
         pstmt = conn.prepareStatement(query);
         rs = pstmt.executeQuery();
         

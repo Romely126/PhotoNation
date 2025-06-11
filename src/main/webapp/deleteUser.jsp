@@ -64,7 +64,7 @@
             return;
         }
         
-        // 2. lost_user_profiles에서 먼저 삭제 (외래키 제약조건 때문)
+        // 2. lost_user_profiles에서 먼저 삭제, 외래키 제약 조건에 의함
         String deleteProfileQuery = "DELETE FROM lost_user_profiles WHERE id = ? AND withdrawDate = ?";
         pstmt = conn.prepareStatement(deleteProfileQuery);
         pstmt.setString(1, userId.trim());

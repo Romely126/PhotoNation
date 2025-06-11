@@ -32,7 +32,7 @@
         conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
         conn.setAutoCommit(false);
         
-        // 현재 좋아요 상태 확인 (post_reactions 테이블 사용)
+        // 현재 좋아요 상태 확인
         String checkQuery = "SELECT reactionType FROM post_reactions WHERE postId = ? AND userId = ?";
         pstmt = conn.prepareStatement(checkQuery);
         pstmt.setInt(1, postId);

@@ -35,7 +35,7 @@ try {
     if (rs != null) rs.close();
     if (pstmt != null) pstmt.close();
 
-    // 비밀번호 해시화 (MD5 사용 - 실제 운영에서는 더 안전한 방식 권장)
+    // 비밀번호 해시화, MD5 방식 사용
     MessageDigest md = MessageDigest.getInstance("MD5");
     md.update(newPassword.getBytes());
     byte[] digest = md.digest();
@@ -55,7 +55,7 @@ try {
     int result = pstmt.executeUpdate();
     
     if (result > 0) {
-        // 비밀번호 변경 성공 시 해당 이메일의 인증 상태를 초기화 (보안을 위해)
+        // 비밀번호 변경 성공 시 해당 이메일의 인증 상태를 초기화
         if (pstmt != null) pstmt.close();
         
         String resetVerificationSQL = "UPDATE email_verifications SET is_verified = false WHERE email = ?";

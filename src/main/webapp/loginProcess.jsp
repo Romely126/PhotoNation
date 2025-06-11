@@ -29,7 +29,7 @@ try {
     Class.forName("com.mysql.cj.jdbc.Driver");
     conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/photonation", "root", "1234");
 
-    // 사용자 인증 (해시화된 비밀번호로 비교) + actived 상태 확인
+    // 사용자 인증 및 actived 상태 확인
     String loginSQL = "SELECT id, name, nickname, email, actived FROM user_info WHERE id = ? AND password = ?";
     pstmt = conn.prepareStatement(loginSQL);
     pstmt.setString(1, userId);
@@ -57,8 +57,8 @@ try {
         session.setAttribute("userNickname", rs.getString("nickname")); // 실제 닉네임 사용
         session.setAttribute("userEmail", rs.getString("email"));
         
-        // 메인 페이지로 리다이렉트 (또는 원하는 페이지로)
-        response.sendRedirect("main.jsp"); // 또는 index.jsp, dashboard.jsp 등
+        // 메인 페이지로 리다이렉트
+        response.sendRedirect("main.jsp"); 
     } else {
         // 로그인 실패
         response.sendRedirect("login.jsp?error=1");
